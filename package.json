@@ -1,19 +1,25 @@
 {
   "name": "vue-mf-module",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A vue extension to create microfrontend module",
   "module": "./dist/vue-mf-module.es.js",
+  "main": "./dist/vue-mf-module.es.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/vue-mf-module.es.js"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/vue-mf-module.umd.js"
+      }
+    }
+  },
   "files": [
     "dist"
   ],
-  "main": "./dist/vue-mf-module.es.js",
-  "exports": {
-    ".": {
-      "import": "./dist/vue-mf-module.es.js",
-      "require": "./dist/vue-mf-module.umd.js"
-    }
-  },
   "scripts": {
     "dev": "vite",
     "compile": "tsc",
