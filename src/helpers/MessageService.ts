@@ -2,7 +2,9 @@ const askReplyChannels = new Map<string, MessageChannel>();
 const sendSubscribeChannels = new Map<string, MessageChannel>();
 const sendSubscribeCallbacks = new Map<Function, (...args: any[]) => any>();
 
-const ask = <T>(name: string, ...args: any[]): Promise<T> => {
+
+
+const ask = <T extends keyof AskMessageTypes & string>(name: T, ...args: Parameters<AskMessageTypes[T]>): Promise<ReturnType<AskMessageTypes[T]>> => {
   return new Promise(resolve => {
     let port = askReplyChannels.get(name)?.port1
     if (!port) {
@@ -20,7 +22,7 @@ const ask = <T>(name: string, ...args: any[]): Promise<T> => {
   });
 }
 
-const reply = (name: string, cb: (...args: any[]) => Promise<any> | any, opts: { force: boolean } = { force: false }) => {
+const reply = <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessageTypes[T], opts: { force: boolean } = { force: false }) => {
   let port = askReplyChannels.get(name)?.port2
   if (!port) {
     const c = new MessageChannel();
@@ -40,7 +42,7 @@ const reply = (name: string, cb: (...args: any[]) => Promise<any> | any, opts: {
   }
 }
 
-const send = (name: string, ...args: any[]) => {
+const send = <T extends keyof SubscriptionMessageTypes & string>(name: T, ...args: Parameters<SubscriptionMessageTypes[T]>) => {
   let port = sendSubscribeChannels.get(name)?.port1
   if (!port) {
     const c = new MessageChannel();
@@ -50,7 +52,7 @@ const send = (name: string, ...args: any[]) => {
   port.postMessage(args);
 }
 
-const subscribe = (name: string, cb: (...args: any[]) => any) => {
+const subscribe = <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => {
   let port = sendSubscribeChannels.get(name)?.port2
   if (!port) {
     const c = new MessageChannel();
@@ -69,14 +71,14 @@ const subscribe = (name: string, cb: (...args: any[]) => any) => {
   }
 }
 
-const once = (name: string, cb: (...args: any[]) => any) => {
+const once = <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => {
   const unsubscribe = subscribe(name, (...args: any[]) => {
     cb(...args);
     unsubscribe();
   });
 }
 
-const unsubscribe = (name: string, cb: (...args: any[]) => any) => {
+const unsubscribe = <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => {
   let port = sendSubscribeChannels.get(name)?.port2
   if (!port) return;
   const l = sendSubscribeCallbacks.get(cb);
@@ -95,7 +97,7 @@ export {
   unsubscribe
 }
 
-export const MessageService = {
+export const MessageService: MessageService = {
   Instance: {
     ask,
     reply,
@@ -105,3 +107,23 @@ export const MessageService = {
     unsubscribe
   }
 }
+
+export interface AskMessageTypes {
+  [name: string]: (...args: any[]) => any;
+}
+export interface SubscriptionMessageTypes {
+  [name: string]: (...args: any[]) => any;
+}
+
+export type MessageService = {
+  Instance: {
+    ask: <T extends keyof AskMessageTypes & string>(name: T, ...parameters: Parameters<AskMessageTypes[T]>) => Promise<ReturnType<AskMessageTypes[T]>>;
+    reply: <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessageTypes[T], opts?: {
+      force: boolean;
+    }) => () => void;
+    send: <T extends keyof SubscriptionMessageTypes & string>(name: T, ...args: Parameters<SubscriptionMessageTypes[T]>) => void;
+    subscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => () => void;
+    once: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
+    unsubscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
+  };
+};

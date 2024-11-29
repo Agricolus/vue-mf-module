@@ -1,4 +1,5 @@
 import { TinyEmitter } from 'tiny-emitter';
+
 export interface IMenuDefinition {
     name: string;
     description: string;
