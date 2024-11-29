@@ -12,20 +12,22 @@ export default defineConfig({
       isProduction: true,
     }),
     dts({
-      entryRoot: "./src/",
-      skipDiagnostics: true
+      entryRoot: "./src",
+      exclude: ["./src/playground"]
+      // skipDiagnostics: true
     })
   ],
   build: {
     lib: {
       entry: "./src/index.ts",
       name: "VueMfModule",
-      fileName: (format) => `vue-mf-module.${format}.js`,
+      fileName: (format) => `vue-mf-module.${format}.js`
     },
     rollupOptions: {
       // make sure to externalize deps that shouldn't be bundled
       // into your library
       external: ['vue'],
+      input: "./src/index.ts",
       output: {
         sourcemap: "inline",
         exports: "named",

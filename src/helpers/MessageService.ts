@@ -1,8 +1,25 @@
+interface AskMessageTypes {
+}
+interface SubscriptionMessageTypes {
+}
+
+export type MessageService = {
+  Instance: {
+    ask: <T extends keyof AskMessageTypes & string>(name: T, ...args: Parameters<AskMessageTypes[T]>) => Promise<ReturnType<AskMessageTypes[T]>>;
+    reply: <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessageTypes[T], opts?: {
+      force: boolean;
+    }) => () => void;
+    send: <T extends keyof SubscriptionMessageTypes & string>(name: T, ...args: Parameters<SubscriptionMessageTypes[T]>) => void;
+    subscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => () => void;
+    once: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
+    unsubscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
+  };
+};
+
+
 const askReplyChannels = new Map<string, MessageChannel>();
 const sendSubscribeChannels = new Map<string, MessageChannel>();
 const sendSubscribeCallbacks = new Map<Function, (...args: any[]) => any>();
-
-
 
 const ask = <T extends keyof AskMessageTypes & string>(name: T, ...args: Parameters<AskMessageTypes[T]>): Promise<ReturnType<AskMessageTypes[T]>> => {
   return new Promise(resolve => {
@@ -23,6 +40,7 @@ const ask = <T extends keyof AskMessageTypes & string>(name: T, ...args: Paramet
 }
 
 const reply = <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessageTypes[T], opts: { force: boolean } = { force: false }) => {
+  if (typeof cb !== "function") throw "reply callback for message " + name + " is not a function";
   let port = askReplyChannels.get(name)?.port2
   if (!port) {
     const c = new MessageChannel();
@@ -32,6 +50,7 @@ const reply = <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessage
   if (!opts.force && port.onmessage) throw "reply already set for message " + name
   const l = async (evt: MessageEvent) => {
     const innerport = evt.ports[0]
+    //@ts-expect-error
     const r = await cb(...evt.data);
     innerport.postMessage(r);
     innerport.close();
@@ -53,6 +72,7 @@ const send = <T extends keyof SubscriptionMessageTypes & string>(name: T, ...arg
 }
 
 const subscribe = <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => {
+  if (typeof cb !== "function") throw "reply callback for message " + name + " is not a function";
   let port = sendSubscribeChannels.get(name)?.port2
   if (!port) {
     const c = new MessageChannel();
@@ -60,6 +80,7 @@ const subscribe = <T extends keyof SubscriptionMessageTypes & string>(name: T, c
     port = c.port2
   }
   const l = (evt: MessageEvent) => {
+    //@ts-expect-error
     cb(...evt.data);
   }
   sendSubscribeCallbacks.set(cb, l);
@@ -72,7 +93,10 @@ const subscribe = <T extends keyof SubscriptionMessageTypes & string>(name: T, c
 }
 
 const once = <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => {
-  const unsubscribe = subscribe(name, (...args: any[]) => {
+  if (typeof cb !== "function") throw "reply callback for message " + name + " is not a function";
+  //@ts-expect-error
+  const unsubscribe = subscribe(name, (...args: unknown[]) => {
+    //@ts-expect-error
     cb(...args);
     unsubscribe();
   });
@@ -107,23 +131,3 @@ export const MessageService: MessageService = {
     unsubscribe
   }
 }
-
-export interface AskMessageTypes {
-  [name: string]: (...args: any[]) => any;
-}
-export interface SubscriptionMessageTypes {
-  [name: string]: (...args: any[]) => any;
-}
-
-export type MessageService = {
-  Instance: {
-    ask: <T extends keyof AskMessageTypes & string>(name: T, ...parameters: Parameters<AskMessageTypes[T]>) => Promise<ReturnType<AskMessageTypes[T]>>;
-    reply: <T extends keyof AskMessageTypes & string>(name: T, cb: AskMessageTypes[T], opts?: {
-      force: boolean;
-    }) => () => void;
-    send: <T extends keyof SubscriptionMessageTypes & string>(name: T, ...args: Parameters<SubscriptionMessageTypes[T]>) => void;
-    subscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => () => void;
-    once: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
-    unsubscribe: <T extends keyof SubscriptionMessageTypes & string>(name: T, cb: SubscriptionMessageTypes[T]) => void;
-  };
-};
