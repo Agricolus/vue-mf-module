@@ -13,7 +13,10 @@ export default defineConfig({
     }),
     dts({
       entryRoot: "./src",
-      exclude: ["./src/playground"]
+      exclude: ["./src/playground"],
+      insertTypesEntry: true,
+      tsconfigPath: './tsconfig.json',
+      rollupTypes: true
       // skipDiagnostics: true
     })
   ],

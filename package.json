@@ -23,7 +23,8 @@
   "scripts": {
     "dev": "vite",
     "compile": "vue-tsc",
-    "build": "vue-tsc && vite build"
+    "build": "tsc && vite build",
+    "bbuild": "vite build"
   },
   "author": "e.sodacci <e.sodacci@agricolus.com>",
   "license": "MIT",

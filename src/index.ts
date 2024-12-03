@@ -109,7 +109,7 @@ export {
   type IMenuDefinition,
   menuType,
   CommonRegistry,
-  MessageService,
+  MessageService as MessageService,
   Inject,
   Screen,
   ValidateDirective,

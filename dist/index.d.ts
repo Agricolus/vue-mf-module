@@ -1,57 +1,31 @@
-import { MenuHelper, menuType, MenuNotifications, IMenuDefinition } from './helpers/MenuHelper';
-import { CommonRegistry } from './helpers/CommonRegistry';
-import { MessageService } from './helpers/MessageService';
-import { IRouteConfig } from './interfaces/RouterInterfaces';
-import { IStore } from './interfaces/StoreInterfaces';
-import { default as Inject } from './components/inject.vue';
-import { default as Screen } from './components/screen.vue';
-import { VueConstructor } from 'vue';
-import { IProjectableModel, Projectable, Projector } from './helpers/Projector';
-import { ScreensManager } from './directives/screen';
-import { validate as ValidateDirective } from './directives/validate';
+export { }
 
-declare function install(Vue: VueConstructor): void;
-export interface IModuleInitializer {
-    init(vuemf: typeof VueMfModule, menu: MenuHelper, store: IStore, configuration: any): Promise<void>;
-    config?(menu: MenuHelper, store: IStore, configuration: any): Promise<void>;
-    run?(menu: MenuHelper, store: IStore, configuration: any): Promise<void>;
-    routes: IRouteConfig[];
-}
-interface IModuleInitializerWrapper {
-    init(menu: MenuHelper, store: IStore, configuration: any, options: {
-        registry: CommonRegistry;
-        messageService: typeof MessageService.Instance;
-        projector: Projector;
-        screens: ScreensManager;
-    }): Promise<void>;
-    config(menu: MenuHelper, store: IStore): Promise<void>;
-    run(menu: MenuHelper, store: IStore): Promise<void>;
-    routes: IRouteConfig[];
-}
-export declare function ModuleInitializer(opts: IModuleInitializer): IModuleInitializerWrapper;
-export declare function InitModule(module: any, store: IStore, configuration: any | undefined): Promise<IModuleInitializer>;
-export declare function ConfigModule(module: any, store: IStore): Promise<void>;
-export declare function RunModule(module: any, store: IStore): Promise<void>;
-export declare function ModuleRoutes(module: any): IRouteConfig[];
-export { MenuHelper, type IMenuDefinition, menuType, CommonRegistry, MessageService, Inject, Screen, ValidateDirective, type Projectable, type IProjectableModel, MenuNotifications, Projector, };
-declare const VueMfModule: {
-    install: typeof install;
-    MenuHelper: MenuHelper;
-    menuType: typeof menuType;
-    CommonRegistry: CommonRegistry;
-    MessageService: MessageService;
-    Inject: any;
-    Screen: any;
-    ValidateDirective: {
-        inserted: (el: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement, bind: {
-            value: (errors: string[], valid: boolean) => void;
-            arg: "immediate";
-        }) => void;
-        unbind: (el: Element) => void;
-    };
-    MenuNotifications: {
-        menuDefinitionAdded: string;
-    };
-    Projector: typeof Projector;
-};
-export default VueMfModule;
+declare namespace MessageService {
+    type AnyFunction = (...args: any) => any;
+    type ExtractMessageKey<T, k> = [T] extends [never] ? string : k extends keyof T ? k & string : never;
+    type AskFunctionParameters<T, k> = [T] extends [never] ? [...any[]] : (k extends keyof T ? (T[k] extends AnyFunction ? Parameters<T[k]> : never) : [
+        ...unknown[]
+    ]);
+    type AskFunctionReturnType<T, k> = [T] extends [never] ? Promise<any> : (k extends keyof T ? (T[k] extends ((...args: any) => infer U) ? Promise<Awaited<U>> : never) : never);
+    type ReplyFunctionCbReturnType<T, k> = [T] extends [never] ? any : (k extends keyof T ? (T[k] extends ((...args: any) => infer U) ? U : never) : never);
+    type ReplyFunctionCb<T, k> = (...args: [...AskFunctionParameters<T, k>]) => ReplyFunctionCbReturnType<T, k>;
+    type SendFunctionParameters<T, k> = [T] extends [never] ? [...any[]] : (k extends keyof T ? T[k] extends Array<any> ? T[k] : [T[k]] : never);
+    type AskFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, ...args: AskFunctionParameters<T, k>) => AskFunctionReturnType<T, k>;
+    type ReplyFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, cb: ReplyFunctionCb<T, k>, opts?: {
+        force: boolean;
+    }) => () => void;
+    type SendFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, ...args: SendFunctionParameters<T, k>) => void;
+    type SubscribeFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, cb: (...args: SendFunctionParameters<T, k>) => void) => () => void;
+    type OnceFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, cb: (...args: SendFunctionParameters<T, k>) => void) => void;
+    type UnsubsribeFunction = <T = never, k = keyof T & string>(name: ExtractMessageKey<T, k>, cb: (...args: SendFunctionParameters<T, k>) => void) => void;
+    interface MessageService {
+        Instance: {
+            ask: AskFunction;
+            reply: ReplyFunction;
+            send: SendFunction;
+            subscribe: SubscribeFunction;
+            once: OnceFunction;
+            unsubscribe: UnsubsribeFunction;
+        };
+    }
+}
