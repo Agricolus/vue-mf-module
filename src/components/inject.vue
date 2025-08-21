@@ -8,8 +8,6 @@
 import { computed, defineComponent } from "vue";
 import { CommonRegistry } from "../helpers/CommonRegistry";
 
-
-
 export default defineComponent({
   name: "inject",
   props: {

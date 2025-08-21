@@ -4,7 +4,7 @@
   </div>
 </template>
 <script lang="ts">
-import { Component, ComponentPublicInstance, computed, defineComponent, getCurrentInstance, onMounted, Ref, ref, watch } from "vue";
+import { Component, computed, defineComponent, getCurrentInstance, onMounted, Ref, ref } from "vue";
 import { IProjectableModel, Projector } from "../helpers/Projector";
 
 export default defineComponent({

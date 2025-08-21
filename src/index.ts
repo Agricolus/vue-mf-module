@@ -21,7 +21,7 @@ function install(Vue: VueConstructor) {
 
 
 export interface IModuleInitializer {
-  init(vuemf: typeof VueMfModule, menu: MenuHelper, store: IStore, configuration: any): Promise<void>,
+  init(menu: MenuHelper, store: IStore, configuration: any): Promise<void>,
 
   config?(menu: MenuHelper, store: IStore, configuration: any): Promise<void>,
 
@@ -47,23 +47,28 @@ interface IModuleInitializerWrapper {
   routes: IRouteConfig[]
 }
 
-export function ModuleInitializer(opts: IModuleInitializer) {
+export function ModuleInitializer(opts: IModuleInitializer): Promise<IModuleInitializerWrapper>;
+export function ModuleInitializer(opts: () => Promise<IModuleInitializer>): Promise<IModuleInitializerWrapper>;
+export async function ModuleInitializer(params: IModuleInitializer | (() => Promise<IModuleInitializer>)): Promise<IModuleInitializerWrapper> {
+  let opts: IModuleInitializer = params as IModuleInitializer;
+  if (typeof params === "function") {
+    opts = await params();
+  }
   let moduleConfig = {};
   return {
-    init(menu: MenuHelper, store: IStore, configuration: any,
-      options: {
-        registry: CommonRegistry,
-        messageService: typeof MessageService.Instance,
-        projector: Projector,
-        screens: ScreensManager
-      }) {
+    init(menu: MenuHelper, store: IStore, configuration: any, options: {
+      registry: CommonRegistry,
+      messageService: typeof MessageService.Instance,
+      projector: Projector,
+      screens: ScreensManager
+    }) {
 
       if (options.registry) CommonRegistry.Instance = options.registry;
       if (options.messageService) MessageService.Instance = options.messageService
       if (options.projector) Projector.Instance = options.projector;
       if (options.screens) ScreensManager.Instance = options.screens;
       moduleConfig = configuration;
-      return opts.init(VueMfModule, menu, store, configuration);
+      return opts.init(menu, store, configuration);
     },
     config(menu: MenuHelper, store: IStore) {
       return opts.config ? opts.config(menu, store, moduleConfig) : null;
@@ -75,8 +80,8 @@ export function ModuleInitializer(opts: IModuleInitializer) {
   } as IModuleInitializerWrapper
 }
 
-export function InitModule(module: any, store: IStore, configuration: any | undefined): Promise<IModuleInitializer> {
-  const initobj = (module.default.default || module.default) as IModuleInitializerWrapper;
+export async function InitModule(module: any, store: IStore, configuration: any | undefined): Promise<IModuleInitializer> {
+  const initobj = await ((module.default.default || module.default) as IModuleInitializerWrapper);
   return initobj.init(MenuHelper.Instance, store, configuration || {},
     {
       registry: CommonRegistry.Instance,
@@ -88,19 +93,19 @@ export function InitModule(module: any, store: IStore, configuration: any | unde
     });
 }
 
-export function ConfigModule(module: any, store: IStore): Promise<void> {
-  const initobj = (module.default.default || module.default) as IModuleInitializerWrapper;
+export async function ConfigModule(module: any, store: IStore): Promise<void> {
+  const initobj = await (module.default.default || module.default) as IModuleInitializerWrapper;
   return initobj.config(MenuHelper.Instance, store);
 }
 
 
-export function RunModule(module: any, store: IStore): Promise<void> {
-  const initobj = (module.default.default || module.default) as IModuleInitializerWrapper;
+export async function RunModule(module: any, store: IStore): Promise<void> {
+  const initobj = await (module.default.default || module.default) as IModuleInitializerWrapper;
   return initobj.run(MenuHelper.Instance, store);
 }
 
-export function ModuleRoutes(module: any): IRouteConfig[] {
-  const initobj = (module.default.default || module.default) as IModuleInitializerWrapper;
+export async function ModuleRoutes(module: any): Promise<IRouteConfig[]> {
+  const initobj = await (module.default.default || module.default) as IModuleInitializerWrapper;
   return initobj.routes;
 }
 

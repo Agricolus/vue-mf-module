@@ -1,4 +1,4 @@
-declare const _sfc_main: import("vue").DefineComponent<{
+declare const _default: import('vue').DefineComponent<{
     id: {
         default: null;
     };
@@ -22,10 +22,12 @@ declare const _sfc_main: import("vue").DefineComponent<{
             isArray(arg: any): arg is any[];
             readonly prototype: any[];
             from<T>(arrayLike: ArrayLike<T>): T[];
-            from<T_1, U>(arrayLike: ArrayLike<T_1>, mapfn: (v: T_1, k: number) => U, thisArg?: any): U[];
-            from<T_2>(iterable: Iterable<T_2> | ArrayLike<T_2>): T_2[];
-            from<T_3, U_1>(iterable: Iterable<T_3> | ArrayLike<T_3>, mapfn: (v: T_3, k: number) => U_1, thisArg?: any): U_1[];
-            of<T_4>(...items: T_4[]): T_4[];
+            from<T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[];
+            from<T>(iterable: Iterable<T> | ArrayLike<T>): T[];
+            from<T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[];
+            of<T>(...items: T[]): T[];
+            fromAsync<T>(iterableOrArrayLike: AsyncIterable<T> | Iterable<T | PromiseLike<T>> | ArrayLike<T | PromiseLike<T>>): Promise<T[]>;
+            fromAsync<T, U>(iterableOrArrayLike: AsyncIterable<T> | Iterable<T> | ArrayLike<T>, mapFn: (value: Awaited<T>, index: number) => U, thisArg?: any): Promise<Awaited<U>[]>;
             readonly [Symbol.species]: ArrayConstructor;
         };
         default: null;
@@ -58,9 +60,9 @@ declare const _sfc_main: import("vue").DefineComponent<{
     readonly: boolean;
     click: (...args: any[]) => void;
     save: (...args: any[]) => void;
-    Components: import("vue").ComputedRef<any[]>;
-    Value: import("vue").WritableComputedRef<null>;
-}, {}, {}, {}, import("vue/types/v3-component-options").ComponentOptionsMixin, import("vue/types/v3-component-options").ComponentOptionsMixin, {}, string, Readonly<import("vue").ExtractPropTypes<{
+    Components: import('vue').ComputedRef<any[]>;
+    Value: import('vue').WritableComputedRef<null>;
+}, {}, {}, {}, import('vue/types/v3-component-options').ComponentOptionsMixin, import('vue/types/v3-component-options').ComponentOptionsMixin, {}, string, Readonly<import('vue').ExtractPropTypes<{
     id: {
         default: null;
     };
@@ -84,10 +86,12 @@ declare const _sfc_main: import("vue").DefineComponent<{
             isArray(arg: any): arg is any[];
             readonly prototype: any[];
             from<T>(arrayLike: ArrayLike<T>): T[];
-            from<T_1, U>(arrayLike: ArrayLike<T_1>, mapfn: (v: T_1, k: number) => U, thisArg?: any): U[];
-            from<T_2>(iterable: Iterable<T_2> | ArrayLike<T_2>): T_2[];
-            from<T_3, U_1>(iterable: Iterable<T_3> | ArrayLike<T_3>, mapfn: (v: T_3, k: number) => U_1, thisArg?: any): U_1[];
-            of<T_4>(...items: T_4[]): T_4[];
+            from<T, U>(arrayLike: ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[];
+            from<T>(iterable: Iterable<T> | ArrayLike<T>): T[];
+            from<T, U>(iterable: Iterable<T> | ArrayLike<T>, mapfn: (v: T, k: number) => U, thisArg?: any): U[];
+            of<T>(...items: T[]): T[];
+            fromAsync<T>(iterableOrArrayLike: AsyncIterable<T> | Iterable<T | PromiseLike<T>> | ArrayLike<T | PromiseLike<T>>): Promise<T[]>;
+            fromAsync<T, U>(iterableOrArrayLike: AsyncIterable<T> | Iterable<T> | ArrayLike<T>, mapFn: (value: Awaited<T>, index: number) => U, thisArg?: any): Promise<Awaited<U>[]>;
             readonly [Symbol.species]: ArrayConstructor;
         };
         default: null;
@@ -111,12 +115,12 @@ declare const _sfc_main: import("vue").DefineComponent<{
 }>>, {
     name: string;
     value: null;
-    type: string;
     id: null;
+    type: string;
     names: string[];
     group: string;
     metadata: Record<string, any>;
     disabled: boolean;
     readonly: boolean;
 }>;
-export default _sfc_main;
+export default _default;

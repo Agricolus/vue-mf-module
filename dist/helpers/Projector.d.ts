@@ -1,4 +1,4 @@
-import { Component, ComponentPublicInstance } from "vue";
+import { Component, ComponentPublicInstance } from 'vue';
 export interface IProjectableModel<T> {
     data: T;
     resolve: (item: T) => void;
